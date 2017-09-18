@@ -1,0 +1,35 @@
+cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
+project(emerge VERSION 0.0.0 LANGUAGES CXX)
+
+if (NOT CMAKE_BUILD_TYPE)
+	message("-- Setting build type to debug")
+	set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/debug)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/debug)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/debug)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/release)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/release)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/release)
+
+if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+	set(OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
+	else()
+	set(OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
+endif()
+
+add_executable(cc_gen
+	src/main.cpp)
+
+target_compile_options(cc_gen PUBLIC
+	$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-std=c++1z -Wall -Wextra -Werror>
+	$<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>)
+
+target_link_libraries(cc_gen
+	$<$<CXX_COMPILER_ID:Clang>:c++>)
+
+install(TARGETS cc_gen EXPORT cc_gen
+	ARCHIVE DESTINATION lib
+	LIBRARY DESTINATION lib
+	RUNTIME DESTINATION bin)
